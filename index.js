@@ -30,8 +30,15 @@ function getRandomBase64 (byteLength) {
     // Expo SDK 41-44
     return NativeModules.ExpoRandom.getRandomBase64String(byteLength)
   } else if (global.ExpoModules) {
-    // Expo SDK 45+
-    return global.ExpoModules.ExpoRandom.getRandomBase64String(byteLength);
+    if (global.ExpoModules.ExpoRandom) {
+      // Expo SDK 45+
+      return global.ExpoModules.ExpoRandom.getRandomBase64String(byteLength)
+    } else if (global.ExpoModules.ExpoCrypto) {
+      // Expo SDK 48+
+      const randomBytes =
+        global.ExpoModules.ExpoCrypto.getRandomBytes(byteLength)
+      return Buffer.from(randomBytes).toString("base64")
+    }
   } else {
     throw new Error('Native module not found')
   }
